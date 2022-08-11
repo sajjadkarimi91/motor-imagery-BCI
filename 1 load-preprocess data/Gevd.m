@@ -1,4 +1,4 @@
-function [U,D] = Gevd(Cx , Cy)
+function [U,D] = gevd(Cx , Cy)
 
 % U' Cx U = I
 % U' Cy U = D

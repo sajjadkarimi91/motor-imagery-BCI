@@ -18,20 +18,17 @@ The implemented method uses CSP for feature extraction and SVM as the classifier
 
   1. Iterative Subspace Decomposition for Ocular Artifact Removal 
   2. common spatial pattern algorithm to extract features      
-  3. SVM
-
-     
+  3. SVM     
 
 
 ## 2. Usage & Dependency.
 
 ## Dependency:
-     https://github.com/hisuk/MI-BSSFO
-     
+     https://github.com/hisuk/MI-BSSFO     
      https://github.com/alexandrebarachant/covariancetoolbox
      EEGLAB tolbox
-     Biosig toolbox
+     Biosig plugin for eeglab
 
 ## Usage:
-Run "eeg_preprocessing.m" to load, preprocess and extract motor imagery epochs.
+Run "main_mi.m" to load, preprocess and extract motor imagery epochs.
 

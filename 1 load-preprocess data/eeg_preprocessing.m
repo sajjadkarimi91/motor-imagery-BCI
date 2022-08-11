@@ -1,26 +1,22 @@
-clear
-clc
-
 %This code is dependent on eeglab functions, and eeglab must insatll and
 %add biosig plugin
 
-TimesVar = 5;
-OutlierPercentage = 0.025;
+times_var = 5;
+outlier_percentage = 0.025;
 
-dataset_dir = 'D:/PHD codes/DataSets/2008 Graz data set A';
-save_dir = [dataset_dir,'/epoched_clean_data'];
 mkdir(save_dir);
 
 
-for i = 1:9
+for i = 1:num_subjects
     %% EEGLAB functions
     EEG = pop_biosig([dataset_dir,'/A0',num2str(i),'T.gdf']);
+    % eegplot(EEG.data, 'srate', EEG.srate);
     clc
-    [~ , EEG.data] = sjk_outlier_clip( EEG.data , OutlierPercentage , TimesVar );
+    [~ , EEG.data] = sjk_outlier_clip( EEG.data , outlier_percentage , times_var );
 
     EEG = pop_resample( EEG, 125);
 
-    %% EOG Correction Sameni Method
+    %% EOG Correction Sameni method
     EOG_channels = 23:25 ;
     fs = 125 ;
     eeg_signals = double ( EEG.data  );
@@ -31,13 +27,15 @@ for i = 1:9
 
     %[U, D] = eig (Ax ,Cx ,'qz' ) ;
     %A*V  =  C*V*D
-    [U , D] = Gevd(Cx , Ax);
+    [U , D] = gevd(Cx , Ax);
     [~ , SS] = sort ( diag( D ) , 'descend') ;
     source_space = U(:,SS)' * eeg_signals ;
     source_space (1:2 , : ) = 0 ;
 
     EEG_clean = ( U(:,SS)' )\ source_space ;
     EEG.data = EEG_clean;
+
+    %eegplot(EEG.data, 'srate', EEG.srate);
 
     %% epoches extractions
 
