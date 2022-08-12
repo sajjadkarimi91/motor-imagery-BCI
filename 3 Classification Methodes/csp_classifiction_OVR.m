@@ -17,7 +17,6 @@ for i = num_subjects_ML
 
         num_epochs = length(imagery_classes(k).feature(1).CSP);
         num_filters = length(imagery_classes(k).feature);
-        kclass_sample = length(imagery_classes(k).feature(1).CSP());
         index = 1:max_class;
         index(k)=[];
         class_labels = zeros(num_epochs,1);
@@ -31,10 +30,10 @@ for i = num_subjects_ML
         for num_trail = 1:num_epochs
             class_labels(num_trail) = imagery_classes(k).feature(1).CSP(num_trail).lable;
             for f=1:num_filters
-                csp_features((f-1)*2*k_pairs_ML+1:f*2*k_pairs_ML , num_trail) = imagery_classes(k).feature(f).CSP(num_trail).Train;
+                csp_features((f-1)*2*k_pairs_ML+1:f*2*k_pairs_ML , num_trail) = imagery_classes(k).feature(f).CSP(num_trail).train;
 
                 for t=1:7
-                    test_features(t).x((f-1)*2*k_pairs_ML+1:f*2*k_pairs_ML , num_trail) = imagery_classes(k).feature(f).CSP(num_trail).Test{t};
+                    test_features(t).x((f-1)*2*k_pairs_ML+1:f*2*k_pairs_ML , num_trail) = imagery_classes(k).feature(f).CSP(num_trail).test{t};
                 end
 
             end
@@ -42,9 +41,9 @@ for i = num_subjects_ML
 
 
         for t=1:7
-            final_test(k,t).x =  test_features(t).x;
+            sets_test_features(k,t).x =  test_features(t).x;
         end
-        final_features(k).x= csp_features;
+        set_train_features(k).x= csp_features;
 
     end % k
 
@@ -57,56 +56,56 @@ for i = num_subjects_ML
         teIdx = CVO.test(CrossVal);
 
         %Now binary clssifier must be trained
-        for k=1:3
-            TrainData = final_features(k).x(:,trIdx);
-            TrainLabel = class_labels(trIdx);
+        for k=1:max_class
+            train_features = set_train_features(k).x(:,trIdx);
+            train_label = class_labels(trIdx);
             %             TestData = FinalFeatures(k).x(:,teIdx);
-            TestLabel = class_labels(teIdx);
+            test_label = class_labels(teIdx);
 
 
-            index = 1:3;
+            index = 1:max_class;
             index(k)=[];
 
-            TempTrainLabel = TrainLabel;
+            binary_train_label = train_label;
             for t = 1:2
-                TempTrainLabel( TempTrainLabel==index(t))=5;
+                binary_train_label( binary_train_label==index(t))= max_class+1;
             end
             %Feature Selection using mutual information (MIBIF)
-            [IDX, Z] = rankfeatures(TrainData, TempTrainLabel, 'Criterion','entropy');
+            [IDX, Z] = rankfeatures(train_features, binary_train_label, 'Criterion','entropy');
 
-            Selected_Features = IDX(1:max_features);
+            selected_features = IDX(1:max_features);
 
-            TrainData = TrainData(Selected_Features,:);
+            train_features = train_features(selected_features,:);
 
             for t=1:7
-                test(k,t).x = final_test(k,t).x(Selected_Features,teIdx);
+                test_features_selected(k,t).x = sets_test_features(k,t).x(selected_features,teIdx);
             end
-            %             test(k).x = TestData(Selected_Features,:);
 
             %h_Kernel = (4/(3*250))^0.2*sqrt(var(TrainData'));
+            if strcmp(classfier_type,'nb')
+                trained_models(k).x = fitcnb(train_features', binary_train_label,'Distribution','kernel');
+            else
+                trained_models(k).x = fitcsvm(train_features', binary_train_label,'Standardize',true,'KernelFunction','polynomial',...
+                    'PolynomialOrder',poly_order,'OutlierFraction',0.02,'BoxConstraint',1);
+            end
 
-            SVMModel = fitcsvm(TrainData', TempTrainLabel,'Standardize',true,'KernelFunction','polynomial',...
-                'PolynomialOrder',1,'OutlierFraction',0.02,'BoxConstraint',1);
 
-            % [label_1,Score_1] = predict(SVMModel,VecForward') ;
-
-            Model(k).x = SVMModel;
 
         end
 
 
         for t=1:7
-            Finalpost=[];
+            all_post_prob=[];
             for k=1:3
-                [label_1,post] = predict(Model(k).x, (test(k,t).x)') ;
-                Finalpost(k,:) = post(:,1)';
+                [~,post_prob] = predict(trained_models(k).x, (test_features_selected(k,t).x)') ;
+                all_post_prob(k,:) = post_prob(:,1)';
             end
 
-            [~,Temp]= max(Finalpost);
+            [~,Temp]= max(all_post_prob);
             predicted_labels(t).x = [predicted_labels(t).x,Temp];
 
             if(t==1)
-                true_labels = [true_labels,TestLabel(:)'];
+                true_labels = [true_labels,test_label(:)'];
             end
 
         end
@@ -123,32 +122,32 @@ for i = num_subjects_ML
 end
 
 
-mean(max(kapp'))
-mean(max(HH'))
-
-figure(1)
-figure(2)
-
-Time = [0:6];
-for i=1:9
-
-    figure(1)
-    subplot(3,3,i)
-    plot(Time , kapp(i,:),'linewidth',2)
-    xlim([0,6])
-    ylim([0,1])
-    grid on
-    title(['Subject',num2str(i)])
-
-    figure(2)
-    subplot(3,3,i)
-    plot(Time , HH(i,:),'linewidth',2)
-    xlim([0,6])
-    ylim([0,1])
-    grid on
-    title(['Subject',num2str(i)])
-
-end
+% mean(max(kapp'))
+% mean(max(HH'))
+%
+% figure(1)
+% figure(2)
+%
+% Time = [0:6];
+% for i=1:9
+%
+%     figure(1)
+%     subplot(3,3,i)
+%     plot(Time , kapp(i,:),'linewidth',2)
+%     xlim([0,6])
+%     ylim([0,1])
+%     grid on
+%     title(['Subject',num2str(i)])
+%
+%     figure(2)
+%     subplot(3,3,i)
+%     plot(Time , HH(i,:),'linewidth',2)
+%     xlim([0,6])
+%     ylim([0,1])
+%     grid on
+%     title(['Subject',num2str(i)])
+%
+% end
 
 
 

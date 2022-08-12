@@ -29,6 +29,9 @@ num_subjects_ML = 1:2;
 k_pairs_ML = 2; % it is a member of set k_pairs
 max_features = 4;
 
+classfier_type = 'nb'; % nb or svm
+poly_order = 2; % 1:4
+
 csp_classifiction_OVR;
 
 
