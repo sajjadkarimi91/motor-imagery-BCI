@@ -1,14 +1,16 @@
 
 
-
+%load EEG channel location files
 try
     load([save_dir,'\chanlocs.mat'], 'chanlocs')
 catch
     load('chanlocs.mat', 'chanlocs')
 end
 
+%% for all subjects and number of CSP pairs generate & save features
+
 for k_pair = k_pairs
-    for i = 1:num_subjects
+    for i = num_subjects
 
         disp(['OVR, extracting csp features for subject: #',num2str(i)])
         load([save_dir,'/A0',num2str(i),'T.mat']);
@@ -19,6 +21,13 @@ for k_pair = k_pairs
         imagery_classes(max_class).feature = [];
 
         ferq_bandpass_filters = 4:4:40;
+
+        eeg_all_epochs = [];
+        class_lables = [];
+        for k=1:max_class
+            eeg_all_epochs = cat(3,eeg_all_epochs,EEG_ALL(k).EEG.data(eeg_channels ,: ,:));
+            class_lables = cat(1,class_lables,k*ones(size(EEG_ALL(k).EEG.data,3),1));
+        end
 
         %%  OVR CSP
         for k = 1:max_class
@@ -41,7 +50,7 @@ for k_pair = k_pairs
 
                 temp_data = [];
                 temp_concat_rest = [];
-                for kk=1:2
+                for kk=1:max_class-1
                     eeg_bandpass = sjk_eeg_filter( EEG_ALL(all_labels(kk)).EEG.data(eeg_channels ,: ,:), fs, ferq_bandpass_filters(freq),ferq_bandpass_filters(freq+1) ); % bandpass filtering
                     temp_data = cat(3 , temp_data , eeg_bandpass(: ,round(4.5*fs):round(6.5*fs) ,:) );
                     temp_concat_rest = cat(3 , temp_concat_rest , eeg_bandpass );
@@ -90,16 +99,15 @@ for k_pair = k_pairs
                     close all
                 end
 
+
+                eeg_bandpass = sjk_eeg_filter( eeg_all_epochs , fs, ferq_bandpass_filters(freq),ferq_bandpass_filters(freq+1) ); % bandpass filtering
                 %Extracting Features
-                class_lable =1;
-                imagery_classes(k).feature(freq).CSP1 = csp_extraction(temp_train_one , fs, Wbp , class_lable);
-
-                class_lable =2;
-                imagery_classes(k).feature(freq).CSP2 = csp_extraction(temp_train_rest , fs, Wbp , class_lable);
-
+                
+                imagery_classes(k).feature(freq).CSP = csp_extraction(eeg_bandpass , fs, Wbp , class_lables);
 
             end
         end
+        
         if exist([save_dir,'/csp_features'],"dir")==0
             mkdir([save_dir,'/csp_features'])
         end

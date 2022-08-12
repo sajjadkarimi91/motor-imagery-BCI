@@ -7,7 +7,7 @@ outlier_percentage = 0.025;
 mkdir(save_dir);
 
 
-for i = 1:num_subjects
+for i = num_subjects
     %% EEGLAB functions
     EEG = pop_biosig([dataset_dir,'/A0',num2str(i),'T.gdf']);
     % eegplot(EEG.data, 'srate', EEG.srate);
