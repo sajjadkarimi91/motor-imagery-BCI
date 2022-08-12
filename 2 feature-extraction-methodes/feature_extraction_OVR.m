@@ -16,7 +16,7 @@ for k_pair = k_pairs
         fs = EEG_ALL(1).EEG.srate;
 
         clear imagery_classes
-        imagery_classes(4).feature = [];
+        imagery_classes(max_class).feature = [];
 
         ferq_bandpass_filters = 4:4:40;
 
@@ -92,17 +92,18 @@ for k_pair = k_pairs
 
                 %Extracting Features
                 class_lable =1;
-                VTemp = csp_extraction(temp_train_one , fs, Wbp , class_lable);
-                imagery_classes(k).feature(freq).CSP1 = VTemp;
+                imagery_classes(k).feature(freq).CSP1 = csp_extraction(temp_train_one , fs, Wbp , class_lable);
 
                 class_lable =2;
-                VTemp = csp_extraction(temp_train_rest , fs, Wbp , class_lable);
-                imagery_classes(k).feature(freq).CSP2 = VTemp;
+                imagery_classes(k).feature(freq).CSP2 = csp_extraction(temp_train_rest , fs, Wbp , class_lable);
+
 
             end
         end
-
-        save([save_dir,'/csp_ovr_sub',num2str(i),'k',num2str(k_pair),'.mat'],'imagery_classes');
+        if exist([save_dir,'/csp_features'],"dir")==0
+            mkdir([save_dir,'/csp_features'])
+        end
+        save([save_dir,'/csp_features/csp_ovr_sub',num2str(i),'k',num2str(k_pair),'.mat'],'imagery_classes');
 
     end
 
