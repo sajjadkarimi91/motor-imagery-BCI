@@ -116,38 +116,29 @@ for i = num_subjects_ML
         [kap,se,H,z,p0,SA,R]=kappa(predicted_labels(t).x(:),true_labels(:));
         kapp(i,t)=kap;
         HH(i , t)= sum(diag(H))/sum(H(:));
-        ConfMatrix(t).H = H/72;
+        ConfMatrix(i,t).H = H./sum(H);
     end
 
 end
 
 
-% mean(max(kapp'))
-% mean(max(HH'))
-%
-% figure(1)
-% figure(2)
-%
-% Time = [0:6];
-% for i=1:9
-%
-%     figure(1)
-%     subplot(3,3,i)
-%     plot(Time , kapp(i,:),'linewidth',2)
-%     xlim([0,6])
-%     ylim([0,1])
-%     grid on
-%     title(['Subject',num2str(i)])
-%
-%     figure(2)
-%     subplot(3,3,i)
-%     plot(Time , HH(i,:),'linewidth',2)
-%     xlim([0,6])
-%     ylim([0,1])
-%     grid on
-%     title(['Subject',num2str(i)])
-%
-% end
+
+time_plot = [-1:5];
+for i= num_subjects_ML
+
+    disp(['subject: ',num2str(i)])
+    disp(ConfMatrix(i,6).H)
+   
+    figure
+    plot(time_plot , HH(i,:),'o-','linewidth',2)
+    xlim([0,max(time_plot)])
+    ylim([0,1])
+    grid on
+    ylabel('ACC')
+    xlabel('time (sec)')
+    title(['Subject',num2str(i)])
+
+end
 
 
 

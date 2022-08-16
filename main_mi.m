@@ -19,18 +19,18 @@ eeg_preprocessing;
 
 %% Ready for feature extraction
 close all
-k_pairs = [2];% for different CSP feature generation
+k_pairs = [1,2,3];% for different CSP feature generation
 
 feature_extraction_OVR;
 
 %% classification naive-Bayes or SVMs
 close all
 num_subjects_ML = 1:2;
-k_pairs_ML = 2; % it is a member of set k_pairs
-max_features = 4;
+k_pairs_ML = 3; % it is a member of set k_pairs
+max_features = 20;
 
-classfier_type = 'nb'; % nb or svm
-poly_order = 2; % 1:4
+classfier_type = 'svm'; % nb or svm
+poly_order = 4; % 1:4
 
 csp_classifiction_OVR;
 

@@ -18,7 +18,7 @@ The implemented method uses CSP for feature extraction and SVM as the classifier
 
   1. Iterative Subspace Decomposition for Ocular Artifact Removal 
   2. common spatial pattern algorithm to extract features      
-  3. SVM     
+  3. SVM and Naive-Bayes classification   
 
 
 ## 2. Usage & Dependency.
