@@ -11,7 +11,7 @@ save_dir = [dataset_dir,'/epoched_clean_data'];
 
 num_subjects = 1:9; % participants number
 eeg_channels = 1:22; % eeg channel numbers
-max_class = 3; % 
+max_class = 4; % 
 
 %%  Start load, preprocessing & extracting epochs
 
@@ -19,20 +19,20 @@ eeg_preprocessing;
 
 %% Ready for feature extraction
 close all
-k_pairs = [1,2,3];% for different CSP feature generation
+k_pairs = [1:3];% for different CSP feature generation
 
-feature_extraction_OVR;
+feature_extraction_PW;
 
 %% classification naive-Bayes or SVMs
 close all
-num_subjects_ML = 1:2;
+num_subjects_ML = 1:1;
 k_pairs_ML = 3; % it is a member of set k_pairs
 max_features = 20;
 
-classfier_type = 'svm'; % nb or svm
-poly_order = 4; % 1:4
+classfier_type = 'nb'; % nb or svm
+poly_order = 1; % 1:4
 
-csp_classifiction_OVR;
+csp_classifiction_PW;
 
 
 

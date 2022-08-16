@@ -1,13 +1,11 @@
 # motor-imagery-BCI
 
-A MATLAB toolbox for classification of motor imagery tasks in EEG-based BCI system with CSP, FB-CSP and BSSFO
+A MATLAB toolbox for classification of motor imagery tasks in EEG-based BCI system with CSP and FB-CSP 
 
 Codes and data for the following paper are extended to different methods:
 
 Iterative Subspace Decomposition for Ocular Artifact Removal from EEG Recordings
-A novel Bayesian framework for discriminative feature extraction in brain-computer interfaces
 Filter bank common spatial pattern algorithm on BCI competition IV Datasets 2a and 2b
-Multi-class Filter Bank Common Spatial Pattern for Four-Class Motor Imagery BCI
 
 
 ## 1. Introduction.
@@ -30,5 +28,5 @@ The implemented method uses CSP for feature extraction and SVM as the classifier
      Biosig plugin for eeglab
 
 ## Usage:
-Run "main_mi.m" to load, preprocess and extract motor imagery epochs.
+Run "main_pw.m" or "main_ovr.m" to perform A-Z for MI-BCI. 
 

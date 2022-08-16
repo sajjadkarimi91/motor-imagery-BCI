@@ -1,22 +1,19 @@
 
 
-
 for i = num_subjects_ML
     clc
     i
-    load([save_dir,'/csp_features/csp_ovr_sub',num2str(i),'k',num2str(k_pairs_ML),'.mat'],'imagery_classes');
-
+    load([save_dir,'/csp_features/csp_pw_sub',num2str(i),'k',num2str(k_pairs_ML),'.mat'],'imagery_classes');
 
     clear predicted_labels
+    csp_features=[];
     predicted_labels(7).x=[];
     true_labels=[];
 
-    for k = 1:max_class
+    for k = 1:(max_class*(max_class-1)/2)
 
         num_epochs = length(imagery_classes(k).feature(1).CSP);
         num_filters = length(imagery_classes(k).feature);
-        index = 1:max_class;
-        index(k)=[];
         class_labels = zeros(num_epochs,1);
         csp_features = zeros(num_filters*2*k_pairs_ML,num_epochs);
 
@@ -37,14 +34,22 @@ for i = num_subjects_ML
             end
         end
 
-
         for t=1:7
             sets_test_features(k,t).x =  test_features(t).x;
         end
         set_train_features(k).x= csp_features;
 
-    end % k
 
+    end % k=1:6
+
+
+
+    ind_classes = [];
+    for k1 = 1:max_class
+        for k2 = k1+1:max_class
+            ind_classes =[ind_classes,[k1;k2]];
+        end
+    end
 
     %10-fold Cross validation
     CVO = cvpartition(class_labels,'k',10);
@@ -53,26 +58,24 @@ for i = num_subjects_ML
         trIdx = CVO.training(CrossVal);
         teIdx = CVO.test(CrossVal);
 
+
         %Now binary clssifier must be trained
-        for k=1:max_class
+        for k=1:(max_class*(max_class-1)/2)
             train_features = set_train_features(k).x(:,trIdx);
             train_label = class_labels(trIdx);
             %             TestData = FinalFeatures(k).x(:,teIdx);
             test_label = class_labels(teIdx);
 
+            trIdx1 = train_label == ind_classes(1,k);
+            trIdx2 = train_label == ind_classes(2,k);
 
-            index = 1:max_class;
-            index(k)=[];
+            binary_train_label = train_label(trIdx1|trIdx2);
+            train_features = train_features(:,trIdx1|trIdx2);
 
-            binary_train_label = train_label;
-            for t = 1:max_class-1
-                binary_train_label( binary_train_label==index(t))= max_class+1;
-            end
             %Feature Selection using mutual information (MIBIF)
             [IDX, Z] = rankfeatures(train_features, binary_train_label, 'Criterion','entropy');
 
             selected_features = IDX(1:max_features);
-
             train_features = train_features(selected_features,:);
 
             for t=1:7
@@ -88,20 +91,22 @@ for i = num_subjects_ML
             end
 
 
-
         end
 
 
         for t=1:7
-            all_post_prob=[];
-            for k=1:max_class
+
+            all_post_prob = zeros(max_class,sum(teIdx));
+            for k=1:(max_class*(max_class-1)/2)
                 [~,post_prob] = predict(trained_models(k).x, (test_features_selected(k,t).x)') ;
-                all_post_prob(k,:) = post_prob(:,1)';
+                k1 = ind_classes(1,k);
+                k2 = ind_classes(2,k);
+                all_post_prob(k1,:) =  all_post_prob(k1,:) + post_prob(:,1)';
+                all_post_prob(k2,:) =  all_post_prob(k2,:) + post_prob(:,2)';
             end
 
             [~,Temp]= max(all_post_prob);
             predicted_labels(t).x = [predicted_labels(t).x,Temp];
-
             if(t==1)
                 true_labels = [true_labels,test_label(:)'];
             end
@@ -117,8 +122,8 @@ for i = num_subjects_ML
         conf_matrix(i,t).H = H./sum(H);
     end
 
-end
 
+end
 
 
 time_plot = -3:3;
@@ -135,8 +140,8 @@ for i= num_subjects_ML
     ylabel('ACC')
     xlabel('time (sec)')
     title(['Subject',num2str(i)])
-end
 
+end
 
 figure
 plot(time_plot , mean(accuracy,1),'o-','linewidth',2)

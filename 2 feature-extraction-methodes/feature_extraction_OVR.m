@@ -81,8 +81,7 @@ for k_pair = k_pairs
                     hold off
                     topoplot(abs(Wbp(:,end)), chanlocs);
                     title(['CSP 2: Freq ',num2str( ferq_bandpass_filters(freq)) , '-',num2str( ferq_bandpass_filters(freq+1)) , ' Hz' ])
-                    saveas(gcf , ['results\sub_',num2str(i),'_k_',num2str(k),'.fig'])
-                    saveas(gcf , ['results\sub_',num2str(i),'_k_',num2str(k),'.png'])
+                    saveas(gcf , ['results\ovrsub_',num2str(i),'_k_',num2str(k),'.png'])
                 elseif(k==2&& freq>=2 && freq<=4)
                     figure(2)
                     subplot(3,2,2*(freq-2)+1)
@@ -93,8 +92,7 @@ for k_pair = k_pairs
                     hold off
                     topoplot(abs(Wbp(:,end)), chanlocs);
                     title(['CSP 2: Freq ',num2str( ferq_bandpass_filters(freq)) , '-',num2str( ferq_bandpass_filters(freq+1)) , ' Hz' ])
-                    saveas(gcf , ['results\sub_',num2str(i),'_k_',num2str(k),'.fig'])
-                    saveas(gcf , ['results\sub_',num2str(i),'_k_',num2str(k),'.png'])
+                    saveas(gcf , ['results\ovrsub_',num2str(i),'_k_',num2str(k),'.png'])
                 else
                     close all
                 end
@@ -102,12 +100,11 @@ for k_pair = k_pairs
 
                 eeg_bandpass = sjk_eeg_filter( eeg_all_epochs , fs, ferq_bandpass_filters(freq),ferq_bandpass_filters(freq+1) ); % bandpass filtering
                 %Extracting Features
-                
                 imagery_classes(k).feature(freq).CSP = csp_extraction(eeg_bandpass , fs, Wbp , class_lables);
 
             end
         end
-        
+
         if exist([save_dir,'/csp_features'],"dir")==0
             mkdir([save_dir,'/csp_features'])
         end
