@@ -4,8 +4,9 @@ A MATLAB toolbox for classification of motor imagery tasks in EEG-based BCI syst
 
 Codes and data for the following paper are extended to different methods:
 
-Iterative Subspace Decomposition for Ocular Artifact Removal from EEG Recordings
-Filter bank common spatial pattern algorithm on BCI competition IV Datasets 2a and 2b
+ 1# Iterative Subspace Decomposition for Ocular Artifact Removal from EEG Recordings
+
+ 2# Filter bank common spatial pattern algorithm on BCI competition IV Datasets 2a and 2b
 
 
 ## 1. Introduction.
